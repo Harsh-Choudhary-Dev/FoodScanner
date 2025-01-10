@@ -24,7 +24,7 @@ public class ScrapLinks {
 
 
     public String getProductDescription(String prod_id) {
-        System.setProperty("webdriver.chrome.driver", "/home/harsh/programming/food scanner/backend/scanner/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "/chromedriver");
 
         // Create Chrome options
         ChromeOptions options = new ChromeOptions();
