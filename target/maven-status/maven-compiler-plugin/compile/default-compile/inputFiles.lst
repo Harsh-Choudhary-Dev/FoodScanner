@@ -1,0 +1,9 @@
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/Configuration/WebConfig.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/ScannerApplication.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/controller/ApiController.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/controller/HomeController.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/functions/GeminiApi.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/functions/GroqApi.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/functions/ScrapLinks.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/functions/WebScraping.java
+/home/harsh/programming/food scanner/backend/scanner/src/main/java/com/foodScanner/scanner/service/ApiService.java

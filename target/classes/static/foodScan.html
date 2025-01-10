@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodScan - Smart Food Scanner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-1: #3b82f6;
+            --accent-2: #6366f1;
+            --accent-3: #8b5cf6;
+            --card-bg: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-primary), #1a1f35);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .gradient-sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+
+        .sphere-1 {
+            top: 10%;
+            left: 15%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent-1), transparent 70%);
+            animation: floatAnimation 8s infinite alternate;
+        }
+
+        .sphere-2 {
+            bottom: 20%;
+            right: 10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent-2), transparent 70%);
+            animation: floatAnimation 10s infinite alternate-reverse;
+        }
+
+        .sphere-3 {
+            top: 50%;
+            left: 50%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, var(--accent-3), transparent 70%);
+            animation: floatAnimation 12s infinite alternate;
+        }
+
+        @keyframes floatAnimation {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(30px, 30px) scale(1.1);
+            }
+        }
+
+        .header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent-1), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .nav-link:hover::before {
+            transform: scaleX(1);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px 40px;
+        }
+
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text {
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientFlow 8s linear infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .button {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button-primary {
+            background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .button-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            border-color: var(--accent-1);
+        }
+
+        .scanner-demo {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .scan-window {
+            aspect-ratio: 16/9;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 16px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-1), transparent);
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 20px var(--accent-1);
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100px); }
+            100% { transform: translateY(100px); }
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, var(--text-primary), var(--accent-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent-1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 968px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        .fact-grid, .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .fact-card, .news-item {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .fact-card:hover, .news-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .fact-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-sphere sphere-1"></div>
+        <div class="gradient-sphere sphere-2"></div>
+        <div class="gradient-sphere sphere-3"></div>
+    </div>
+
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">FoodScan</a>
+            <nav class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#stats" class="nav-link">Stats</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Scan Smart,<br>Eat Better</h1>
+                    <p class="hero-subtitle">
+                        Experience the future of food awareness. Our intelligent scanner 
+                        reveals detailed nutrition facts, allergen alerts, and eco-ratings 
+                        instantly. Make informed choices for a healthier you.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="scanner.html" class="button button-primary" onclick="logGetStarted()">Get Started</a>
+                        <a href="#learn" class="button button-secondary" onclick="logWatchDemo()">Watch Demo</a>
+                    </div>
+                </div>
+                <div class="scanner-demo">
+                    <div class="scan-window" style="background-image: url('https://imgs.search.brave.com/9pi30DFtP2kbfm8WItvsDUy_P8I4G4dJ4xRg-jHlySI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/ZXNhd2ViYi5vcmcv/YXJjaGl2ZXMvaW1h/Z2VzL3NjcmVlbi93/ZWljMjIxNmIuanBn'); animation: changeImage 10s infinite;">
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <h2 class="section-title">Smart Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3 class="feature-title">Nutritional Insights</h3>
+                    <p class="feature-description">
+                        Get detailed nutritional information for every product scanned.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚠️</div>
+                    <h3 class="feature-title">Allergen Alerts</h3>
+                    <p class="feature-description">
+                        Instant alerts for allergens based on your dietary preferences.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">Eco Ratings</h3>
+                    <p class="feature-description">
+                        Understand the environmental impact of your food choices.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Personalized Recommendations</h3>
+                    <p class="feature-description">
+                        Tailored food suggestions based on your health goals.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">Shopping List Integration</h3>
+                    <p class="feature-description">
+                        Create and manage your shopping list directly from the app.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="health-facts section">
+            <h2 class="section-title">Health Facts</h2>
+            <div class="fact-grid">
+                <div class="fact-card">
+                    <div class="fact-icon">🍏</div>
+                    <p>Eating fruits and vegetables can reduce the risk of chronic diseases.</p>
+                </div>
+                <div class="fact-card">
+                    <div class="fact-icon">💧</div>
+                    <p>Staying hydrated is essential for overall health.</p>
+                </div>
+                <div class="fact-card">
+                    <div class="fact-icon">🏃‍♂️</div>
+                    <p>Regular physical activity can improve mental health.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="news section">
+            <h2 class="section-title">Latest Health News</h2>
+            <div class="news-grid">
+                <div class="news-item">
+                    <h3>New Study Reveals Benefits of Plant-Based Diets</h3>
+                    <p>Research shows that plant-based diets can lead to better heart health.</p>
+                </div>
+                <div class="news-item">
+                    <h3>Importance of Hydration in Daily Life</h3>
+                    <p>Experts emphasize the need for adequate water intake for optimal health.</p>
+                </div>
+                <div class="news-item">
+                    <h3>How Sleep Affects Your Health</h3>
+                    <p>Quality sleep is crucial for maintaining a healthy lifestyle.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer" style="background: rgba(15, 23, 42, 0.9); padding: 2rem 0; text-align: center;">
+            <div class="footer-content">
+                <p style="color: var(--text-secondary);">&copy; 2023 FoodScan. All rights reserved.</p>
+                <nav class="footer-links">
+                    <a href="#features" style="color: var(--text-primary); text-decoration: none; margin: 0 1rem; transition: color 0.3s;">Features</a>
+                    <a href="#about" style="color: var(--text-primary); text-decoration: none; margin: 0 1rem; transition: color 0.3s;">About</a>
+                    <a href="#stats" style="color: var(--text-primary); text-decoration: none; margin: 0 1rem; transition: color 0.3s;">Stats</a>
+                    <a href="#contact" style="color: var(--text-primary); text-decoration: none; margin: 0 1rem; transition: color 0.3s;">Contact</a>
+                </nav>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
