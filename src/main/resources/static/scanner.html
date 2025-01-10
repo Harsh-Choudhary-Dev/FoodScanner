@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Remove Animated Background */
+        body::before {
+            content: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 2rem 0;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-out, pulse 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        #scanner-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        video {
+            width: 100%;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            border-radius: 15px;
+            background-color: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        video:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+        }
+
+        .button {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            color: white;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .button:disabled {
+            background: linear-gradient(135deg, #64748b, #475569);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #barcode-result {
+            margin: 20px;
+            padding: 15px;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .error {
+            color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .success {
+            color: #22c55e;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #product-details {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        #product-details h2 {
+            color: #60a5fa;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-section {
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            color: #60a5fa;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+
+        .section-content {
+            color: #e5e7eb;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            padding: 0 10px;
+        }
+
+        .ingredients-list {
+            display: grid;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .ingredient-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .ingredient-name {
+            color: #60a5fa;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .ingredient-description {
+            color: #d1d5db;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .sub-point {
+            display: block;
+            color: #60a5fa;
+            font-weight: 500;
+            padding: 8px 0 8px 20px;
+            margin: 8px 0;
+            line-height: 1.6;
+            border-left: 3px solid #3b82f6;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0 6px 6px 0;
+            transition: all 0.3s ease;
+        }
+
+        .sub-point:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        #upload-button {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        }
+
+        #upload-button:hover {
+            background: linear-gradient(135deg, #4338ca, #2563eb);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+
+            #product-details {
+                padding: 20px;
+            }
+        }
+
+        /* New animated button */
+        .animated-button {
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Barcode Scanner</h1>
+        <p>Scan a barcode using your device's camera</p>
+        <button id="start-button" class="button animated-button">Start Scanner</button>
+        <div id="scanner-container">
+            <video id="video" playsinline></video>
+        </div>
+        <p id="barcode-result">Click 'Start Scanner' to begin</p>
+
+        <div id="product-details" style="display: none;">
+            <h2>Product Details</h2>
+            <div id="product-description"></div>
+        </div>
+
+        <input type="file" id="barcode-image-input" accept="image/*" style="display: none;">
+        <button id="upload-button" class="button">Upload Barcode Image</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+    <script>
+        // Your existing JavaScript code remains unchanged
+        const videoElement = document.getElementById('video');
+        const resultElement = document.getElementById('barcode-result');
+        const startButton = document.getElementById('start-button');
+        let codeReader = null;
+
+        function updateResult(text, isError = false, isSuccess = false) {
+            resultElement.textContent = text;
+            resultElement.className = isError ? 'error' : (isSuccess ? 'success' : '');
+        }
+
+        async function initializeScanner() {
+            try {
+                if (typeof ZXing === 'undefined') {
+                    throw new Error('ZXing library not loaded');
+                }
+
+                codeReader = new ZXing.BrowserMultiFormatReader();
+                const videoInputDevices = await codeReader.listVideoInputDevices();
+                
+                if (videoInputDevices.length === 0) {
+                    throw new Error('No camera found');
+                }
+
+                startButton.addEventListener('click', async () => {
+                    try {
+                        startButton.disabled = true;
+                        updateResult('Starting scanner...');
+                        
+                        await codeReader.decodeFromVideoDevice(
+                            undefined,
+                            videoElement,
+                            (result, err) => {
+                                if (result) {
+                                    const barcodeText = result.getText();
+                                    console.log('Barcode detected: ' + barcodeText);
+                                    updateResult(`Detected Barcode: ${barcodeText}`, false, true);
+                                    codeReader.reset();
+                                    startButton.disabled = false;
+                                    onBarcodeScanned(barcodeText);
+                                }
+                                
+                                if (err && !(err instanceof ZXing.NotFoundException)) {
+                                    updateResult('Error while scanning. Please try again.', true);
+                                    startButton.disabled = false;
+                                }
+                            }
+                        );
+                    } catch (error) {
+                        updateResult('Failed to start scanner. Please check camera permissions.', true);
+                        startButton.disabled = false;
+                    }
+                });
+
+                startButton.disabled = false;
+                updateResult('Scanner ready. Click Start Scanner to begin.');
+            } catch (error) {
+                updateResult('Failed to initialize scanner. Please make sure you have a camera and have granted permissions.', true);
+                startButton.disabled = true;
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (codeReader) {
+                codeReader.reset();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing scanner...');
+            setTimeout(initializeScanner, 100);
+        });
+
+        function getProductDetails(prod_id) {
+            console.log(prod_id);
+            
+            fetch(`/product_id?productDetails="${(prod_id)}"`, {
+                method: 'GET'
+            })
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    displayProductDetails(data);
+                })
+                .catch(error => {
+                    console.log('Error fetching product details: ' + error);
+                    resultElement.innerText += error;
+                });
+        }
+
+        function onBarcodeScanned(barcodeText) {
+            console.log('Barcode scanned: ' + barcodeText);
+            getProductDetails(barcodeText);
+        }
+
+        function displayProductDetails(data) {
+            const productDetailsDiv = document.getElementById('product-details');
+            const productDescriptionDiv = document.getElementById('product-description');
+            
+            const sections = data.description
+                .split('###')
+                .filter(section => section.trim());
+
+            const htmlContent = sections.map(section => {
+                const [title, ...contentParts] = section.trim().split(':');
+                const content = contentParts.join(':').trim();
+                
+                const hasIngredientPattern = content.match(/\d+\.\s*\*\*[^*]+\*\*:/);
+                
+                if (hasIngredientPattern) {
+                    const ingredients = content.match(/\d+\.\s*\*\*[^*]+\*\*:[^1-9]*/g) || [];
+                    const ingredientsHtml = ingredients.map(ingredient => {
+                        const [name, desc] = ingredient.split(':');
+                        const cleanName = name.replace(/^\d+\.\s*\*\*/, '').replace(/\*\*$/, '');
+                        
+                        let processedDesc = desc.trim();
+                        const subPoints = processedDesc.match(/\*\*[^*]+\*\*/g);
+                        
+                        if (subPoints) {
+                            subPoints.forEach(point => {
+                                const cleanPoint = point.replace(/\*\*/g, '');
+                                processedDesc = processedDesc.replace(
+                                    point, 
+                                    `</p><div class="sub-point">• ${cleanPoint}</div><p class="ingredient-description">`
+                                );
+                            });
+                        }
+
+                        return `
+                            <div class="ingredient-item">
+                                <h4 class="ingredient-name">${cleanName}</h4>
+                                <p class="ingredient-description">${processedDesc}</p>
+                            </div>`;
+                    }).join('');
+
+                    return `
+                        <div class="product-section">
+                            <h3 class="section-title">${title.replace(/^\d+\.\s*/, '')}</h3>
+                            <div class="ingredients-list">
+                                ${ingredientsHtml}
+                            </div>
+                        </div>`;
+                }
+                
+                let processedContent = content;
+                const subPoints = content.match(/\*\*[^*]+\*\*/g);
+                
+                if (subPoints) {
+                    subPoints.forEach(point => {
+                        const cleanPoint = point.replace(/\*\*/g, '');
+                        processedContent = processedContent.replace(
+                            point, 
+                            `</p><div class="sub-point">• ${cleanPoint}</div><p class="section-content">`
+                        );
+                    });
+                }
+                
+                return `
+                    <div class="product-section">
+                        <h3 class="section-title">${title.replace(/^\d+\.\s*/, '')}</h3>
+                        <p class="section-content">${processedContent}</p>
+                    </div>`;
+            }).join('');
+
+            productDescriptionDiv.innerHTML = htmlContent;
+            productDetailsDiv.style.display = 'block';
+
+            // Add animation to product details display
+            productDetailsDiv.style.opacity = '0';
+            productDetailsDiv.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                productDetailsDiv.style.transition = 'all 0.5s ease';
+                productDetailsDiv.style.opacity = '1';
+                productDetailsDiv.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // Handle file upload functionality
+        document.getElementById('upload-button').addEventListener('click', () => {
+            document.getElementById('barcode-image-input').click();
+        });
+
+        document.getElementById('barcode-image-input').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = async () => {
+                        const codeReader = new ZXing.BrowserMultiFormatReader();
+                        try {
+                            const result = await codeReader.decodeFromImage(img);
+                            const barcodeText = result.getText();
+                            console.log('Barcode detected from image: ' + barcodeText);
+                            updateResult(`Detected Barcode: ${barcodeText}`, false, true);
+                            onBarcodeScanned(barcodeText);
+                        } catch (err) {
+                            console.error('Error decoding barcode from image: ', err);
+                            updateResult('Error decoding barcode from image. Please try again.', true);
+                        }
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
