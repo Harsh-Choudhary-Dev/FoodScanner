@@ -14,7 +14,7 @@ public class GroqApi {
 
     public static String getAIResponse(String prompt) {
         String apiUrl = "https://api.groq.com/openai/v1/chat/completions";
-        String apiKey = "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"; // Replace with your actual API key
+        String apiKey = ""; // Replace with your actual API key
         String jsonInputString = String.format("""
                     {
                         "model": "llama-3.3-70b-versatile",
