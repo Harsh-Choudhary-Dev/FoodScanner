@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
     @GetMapping("/")
     public String home() {
-        return "forward:/foodScan.html";
+        return "forward:/scanner.html";
     }
 
 }

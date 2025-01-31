@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Barcode Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #818cf8;
+            --background-dark: #0f172a;
+            --surface-color: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --border-color: rgba(148, 163, 184, 0.1);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, var(--background-dark) 0%, #1e1b4b 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Modernized container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Enhanced header */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        /* Modern card design */
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Enhanced scanner container */
+        #scanner-container {
+            position: relative;
+            margin: 2rem auto;
+            max-width: 800px;
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 24px;
+            background: var(--card-bg);
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* Modern button design */
+        .button {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-color));
+        }
+
+        /* Enhanced product details */
+        .product-section {
+            background: rgba(30, 41, 59, 0.95);
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .health-score-container {
+            text-align: center;
+            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(129, 140, 248, 0.1));
+            border-radius: 24px;
+            margin: 2rem 0;
+        }
+
+        .health-score {
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin: 1rem 0;
+        }
+
+        .ingredients-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
+        .ingredient-item {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .classification-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 0.75rem;
+        }
+
+        .classification-good {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .classification-neutral {
+            background: rgba(148, 163, 184, 0.1);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        /* Loading animation */
+        .loading {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(99, 102, 241, 0.1);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .button {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .health-score {
+                font-size: 3.5rem;
+            }
+        }
+
+
+/* Styles for screens smaller than 768px */
+@media (max-width: 768px) {
+    .product-section{
+        padding: 0%;
+    }
+    .health-score-container{
+        text-align: left;
+    }
+    .card{
+        padding: 0;
+    }
+}
+
+        
+    </style>
+</head>
+<body>
+    <!-- Rest of the HTML remains the same, just update class names to match new styling -->
+    <div class="container">
+        <h1>Smart Barcode Scanner</h1>
+        <div class="card">
+            <p>Scan a barcode using your device's camera</p>
+            <button id="start-button" class="button">
+                Start Scanner
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 7l-7 5 7 5V7z"></path>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                </svg>
+            </button>
+            <div id="scanner-container">
+                <video id="video" playsinline></video>
+            </div>
+            <div id="barcode-result" class="card">Click 'Start Scanner' to begin</div>
+        </div>
+
+        <div id="product-details" class="card">
+            <h2>Product Details</h2>
+            <div id="product-description"></div>
+        </div>
+
+        <input type="file" id="barcode-image-input" accept="image/*" style="display: none;">
+        <button id="upload-button" class="button">
+            Upload Barcode Image
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Scripts remain the same -->
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+   <script>
+        const videoElement = document.getElementById('video');
+        const resultElement = document.getElementById('barcode-result');
+        const startButton = document.getElementById('start-button');
+        let codeReader = null;
+
+        function updateResult(text, isError = false, isSuccess = false) {
+            resultElement.textContent = text;
+            resultElement.className = isError ? 'error' : (isSuccess ? 'success' : '');
+        }
+
+        async function initializeScanner() {
+            try {
+                if (typeof ZXing === 'undefined') {
+                    throw new Error('ZXing library not loaded');
+                }
+
+                codeReader = new ZXing.BrowserMultiFormatReader();
+                const videoInputDevices = await codeReader.listVideoInputDevices();
+                
+                if (videoInputDevices.length === 0) {
+                    throw new Error('No camera found');
+                }
+
+                startButton.addEventListener('click', async () => {
+                    try {
+                        startButton.disabled = true;
+                        updateResult('Starting scanner...');
+                        
+                        await codeReader.decodeFromVideoDevice(
+                            undefined,
+                            videoElement,
+                            (result, err) => {
+                                if (result) {
+                                    const barcodeText = result.getText();
+                                    console.log('Barcode detected: ' + barcodeText);
+                                    updateResult(`Detected Barcode: ${barcodeText}`, false, true);
+                                    codeReader.reset();
+                                    startButton.disabled = false;
+                                    onBarcodeScanned(barcodeText);
+                                }
+                                
+                                if (err && !(err instanceof ZXing.NotFoundException)) {
+                                    updateResult('Error while scanning. Please try again.', true);
+                                    startButton.disabled = false;
+                                }
+                            }
+                        );
+                    } catch (error) {
+                        updateResult('Failed to start scanner. Please check camera permissions.', true);
+                        startButton.disabled = false;
+                    }
+                });
+
+                startButton.disabled = false;
+                updateResult('Scanner ready. Click Start Scanner to begin.');
+            } catch (error) {
+                updateResult('Failed to initialize scanner. Please make sure you have a camera and have granted permissions.', true);
+                startButton.disabled = true;
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (codeReader) {
+                codeReader.reset();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing scanner...');
+            setTimeout(initializeScanner, 100);
+        });
+
+        function getProductDetails(prod_id) {
+            console.log(prod_id);
+            
+            fetch(`http://localhost:8080/product_id?productDetails=${(prod_id)}`, {
+                method: 'GET'
+            })
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    displayProductDetails(data);
+                })
+                .catch(error => {
+                    console.log('Error fetching product details: ' + error);
+                    resultElement.innerText += error;
+                });
+        }
+
+        function onBarcodeScanned(barcodeText) {
+            console.log('Barcode scanned: ' + barcodeText);
+            getProductDetails(barcodeText);
+        }
+
+        function displayProductDetails(data) {
+            const productDetailsDiv = document.getElementById('product-details');
+            const productDescriptionDiv = document.getElementById('product-description');
+            
+            const healthDetailsHtml = `
+                <div id="health-details" class="product-section">
+                    <h3 class="section-title">Health Rating</h3>
+                    <div class="health-score-container">
+                        <div class="health-score">${data.health_rating.score}/10</div>
+                        <p class="section-content">${data.health_rating.explanation}</p>
+                    </div>
+                </div>
+
+                <div class="product-section">
+                    <h3 class="section-title">Ingredients Analysis</h3>
+                    <div class="ingredients-list">
+                        ${data.ingredients.map(ingredient => `
+                            <div class="ingredient-item">
+                                <div class="ingredient-name" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${ingredient.name}</span>
+                                    <span class="classification-badge ${ingredient.classification.toLowerCase() === 'good' ? 'classification-good' : 'classification-neutral'}">
+                                        ${ingredient.classification}
+                                    </span>
+                                </div>
+                                <p class="ingredient-description">${ingredient.reason}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+
+            productDescriptionDiv.innerHTML = healthDetailsHtml;
+            productDetailsDiv.style.display = 'block';
+
+            // Add animation to product details display
+            productDetailsDiv.style.opacity = '0';
+            productDetailsDiv.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                productDetailsDiv.style.transition = 'all 0.5s ease';
+                productDetailsDiv.style.opacity = '1';
+                productDetailsDiv.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // Handle file upload functionality
+// Handle file upload functionality
+document.getElementById('upload-button').addEventListener('click', () => {
+            document.getElementById('barcode-image-input').click();
+        });
+
+        document.getElementById('barcode-image-input').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = async () => {
+                        const codeReader = new ZXing.BrowserMultiFormatReader();
+                        try {
+                            const result = await codeReader.decodeFromImage(img);
+                            const barcodeText = result.getText();
+                            console.log('Barcode detected from image: ' + barcodeText);
+                            updateResult(`Detected Barcode: ${barcodeText}`, false, true);
+                            onBarcodeScanned(barcodeText);
+                        } catch (err) {
+                            console.error('Error decoding barcode from image: ', err);
+                            updateResult('Error decoding barcode from image. Please try again.', true);
+                        }
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+
+
+// data = {
+//   "health_rating": {
+//     "score": "2",
+//     "explanation": "The product is rated as 2 out of 10 in terms of healthiness, indicating a high level of health benefits. The product is a good source of essential nutrients like calcium, protein, and vitamins D and B12, making it an excellent choice for individuals looking to support their bone health and immune function. However, it is essential to consume the product in moderation due to its high calorie and sugar content. Additionally, individuals with lactose intolerance or dairy allergies should avoid or approach with caution. Overall, the product is a nutritious and healthy choice when consumed as part of a balanced diet."
+//   },
+//   "ingredients": [
+//     {
+//       "name": "Milk",
+//       "classification": "Good",
+//       "reason": "Milk is a rich source of calcium, protein, and vitamins D and B12, which are essential for bone health, muscle growth, and immune function."
+//     },
+//     {
+//       "name": "Water",
+//       "classification": "Neutral",
+//       "reason": "Water is a neutral ingredient that does not provide significant health benefits or harm, but helps with the consistency and texture of the product."
+//     },
+//     {
+//       "name": "Vitamins and Minerals",
+//       "classification": "Good",
+//       "reason": "Vitamins and minerals such as vitamin D and calcium are added to the milk to enhance its nutritional value and support bone health."
+//     },
+//     {
+//       "name": "Stabilizers and Emulsifiers",
+//       "classification": "Neutral",
+//       "reason": "Stabilizers and emulsifiers are added to improve the texture and shelf life of the product, but they do not provide significant health benefits or harm in moderate amounts."
+//     },
+//     {
+//       "name": "Homogenization Agents",
+//       "classification": "Neutral",
+//       "reason": "Homogenization agents are used to distribute the fat molecules evenly throughout the milk, but they do not provide significant health benefits or harm in moderate amounts."
+//     }
+//   ]
+// }
+
+
+//         displayProductDetails(data)
+   </script>
+</body>
+</html>

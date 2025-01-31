@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 2rem 0;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-out, pulse 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        #scanner-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        video {
+            width: 100%;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            border-radius: 15px;
+            background-color: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        video:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+        }
+
+        .button {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            color: white;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .button:disabled {
+            background: linear-gradient(135deg, #64748b, #475569);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #barcode-result {
+            margin: 20px;
+            padding: 15px;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .error {
+            color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .success {
+            color: #22c55e;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        #product-details {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        #product-details h2 {
+            color: #60a5fa;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-section {
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            color: #60a5fa;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+
+        .section-content {
+            color: #e5e7eb;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            padding: 0 10px;
+        }
+
+        .ingredients-list {
+            display: grid;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .ingredient-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .ingredient-name {
+            color: #60a5fa;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .ingredient-description {
+            color: #d1d5db;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .health-score-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .health-score {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+            margin: 10px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .classification-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .classification-good {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .classification-neutral {
+            background-color: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .button {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+
+            #product-details {
+                padding: 20px;
+            }
+
+            .health-score {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Barcode Scanner</h1>
+        <p>Scan a barcode using your device's camera</p>
+        <button id="start-button" class="button">Start Scanner</button>
+        <div id="scanner-container">
+            <video id="video" playsinline></video>
+        </div>
+        <p id="barcode-result">Click 'Start Scanner' to begin</p>
+
+        <div id="product-details" style="display: none;">
+            <h2>Product Details</h2>
+            <div id="product-description"></div>
+        </div>
+
+        <input type="file" id="barcode-image-input" accept="image/*" style="display: none;">
+        <button id="upload-button" class="button">Upload Barcode Image</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+    <script>
+        const videoElement = document.getElementById('video');
+        const resultElement = document.getElementById('barcode-result');
+        const startButton = document.getElementById('start-button');
+        let codeReader = null;
+
+        function updateResult(text, isError = false, isSuccess = false) {
+            resultElement.textContent = text;
+            resultElement.className = isError ? 'error' : (isSuccess ? 'success' : '');
+        }
+
+        async function initializeScanner() {
+            try {
+                if (typeof ZXing === 'undefined') {
+                    throw new Error('ZXing library not loaded');
+                }
+
+                codeReader = new ZXing.BrowserMultiFormatReader();
+                const videoInputDevices = await codeReader.listVideoInputDevices();
+                
+                if (videoInputDevices.length === 0) {
+                    throw new Error('No camera found');
+                }
+
+                startButton.addEventListener('click', async () => {
+                    try {
+                        startButton.disabled = true;
+                        updateResult('Starting scanner...');
+                        
+                        await codeReader.decodeFromVideoDevice(
+                            undefined,
+                            videoElement,
+                            (result, err) => {
+                                if (result) {
+                                    const barcodeText = result.getText();
+                                    console.log('Barcode detected: ' + barcodeText);
+                                    updateResult(`Detected Barcode: ${barcodeText}`, false, true);
+                                    codeReader.reset();
+                                    startButton.disabled = false;
+                                    onBarcodeScanned(barcodeText);
+                                }
+                                
+                                if (err && !(err instanceof ZXing.NotFoundException)) {
+                                    updateResult('Error while scanning. Please try again.', true);
+                                    startButton.disabled = false;
+                                }
+                            }
+                        );
+                    } catch (error) {
+                        updateResult('Failed to start scanner. Please check camera permissions.', true);
+                        startButton.disabled = false;
+                    }
+                });
+
+                startButton.disabled = false;
+                updateResult('Scanner ready. Click Start Scanner to begin.');
+            } catch (error) {
+                updateResult('Failed to initialize scanner. Please make sure you have a camera and have granted permissions.', true);
+                startButton.disabled = true;
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (codeReader) {
+                codeReader.reset();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing scanner...');
+            setTimeout(initializeScanner, 100);
+        });
+
+        function getProductDetails(prod_id) {
+            console.log(prod_id);
+            
+            fetch(`http://localhost:8080/product_id?productDetails=${(prod_id)}`, {
+                method: 'GET'
+            })
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    displayProductDetails(data);
+                })
+                .catch(error => {
+                    console.log('Error fetching product details: ' + error);
+                    resultElement.innerText += error;
+                });
+        }
+
+        function onBarcodeScanned(barcodeText) {
+            console.log('Barcode scanned: ' + barcodeText);
+            getProductDetails(barcodeText);
+        }
+
+        function displayProductDetails(data) {
+            const productDetailsDiv = document.getElementById('product-details');
+            const productDescriptionDiv = document.getElementById('product-description');
+            
+            const healthDetailsHtml = `
+                <div id="health-details" class="product-section">
+                    <h3 class="section-title">Health Rating</h3>
+                    <div class="health-score-container">
+                        <div class="health-score">${data.health_rating.score}/10</div>
+                        <p class="section-content">${data.health_rating.explanation}</p>
+                    </div>
+                </div>
+
+                <div class="product-section">
+                    <h3 class="section-title">Ingredients Analysis</h3>
+                    <div class="ingredients-list">
+                        ${data.ingredients.map(ingredient => `
+                            <div class="ingredient-item">
+                                <div class="ingredient-name" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${ingredient.name}</span>
+                                    <span class="classification-badge ${ingredient.classification.toLowerCase() === 'good' ? 'classification-good' : 'classification-neutral'}">
+                                        ${ingredient.classification}
+                                    </span>
+                                </div>
+                                <p class="ingredient-description">${ingredient.reason}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+
+            productDescriptionDiv.innerHTML = healthDetailsHtml;
+            productDetailsDiv.style.display = 'block';
+
+            // Add animation to product details display
+            productDetailsDiv.style.opacity = '0';
+            productDetailsDiv.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                productDetailsDiv.style.transition = 'all 0.5s ease';
+                productDetailsDiv.style.opacity = '1';
+                productDetailsDiv.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // Handle file upload functionality
+// Handle file upload functionality
+document.getElementById('upload-button').addEventListener('click', () => {
+            document.getElementById('barcode-image-input').click();
+        });
+
+        document.getElementById('barcode-image-input').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = async () => {
+                        const codeReader = new ZXing.BrowserMultiFormatReader();
+                        try {
+                            const result = await codeReader.decodeFromImage(img);
+                            const barcodeText = result.getText();
+                            console.log('Barcode detected from image: ' + barcodeText);
+                            updateResult(`Detected Barcode: ${barcodeText}`, false, true);
+                            onBarcodeScanned(barcodeText);
+                        } catch (err) {
+                            console.error('Error decoding barcode from image: ', err);
+                            updateResult('Error decoding barcode from image. Please try again.', true);
+                        }
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+
+
+data = {
+  "health_rating": {
+    "score": "2",
+    "explanation": "The product is rated as 2 out of 10 in terms of healthiness, indicating a high level of health benefits. The product is a good source of essential nutrients like calcium, protein, and vitamins D and B12, making it an excellent choice for individuals looking to support their bone health and immune function. However, it is essential to consume the product in moderation due to its high calorie and sugar content. Additionally, individuals with lactose intolerance or dairy allergies should avoid or approach with caution. Overall, the product is a nutritious and healthy choice when consumed as part of a balanced diet."
+  },
+  "ingredients": [
+    {
+      "name": "Milk",
+      "classification": "Good",
+      "reason": "Milk is a rich source of calcium, protein, and vitamins D and B12, which are essential for bone health, muscle growth, and immune function."
+    },
+    {
+      "name": "Water",
+      "classification": "Neutral",
+      "reason": "Water is a neutral ingredient that does not provide significant health benefits or harm, but helps with the consistency and texture of the product."
+    },
+    {
+      "name": "Vitamins and Minerals",
+      "classification": "Good",
+      "reason": "Vitamins and minerals such as vitamin D and calcium are added to the milk to enhance its nutritional value and support bone health."
+    },
+    {
+      "name": "Stabilizers and Emulsifiers",
+      "classification": "Neutral",
+      "reason": "Stabilizers and emulsifiers are added to improve the texture and shelf life of the product, but they do not provide significant health benefits or harm in moderate amounts."
+    },
+    {
+      "name": "Homogenization Agents",
+      "classification": "Neutral",
+      "reason": "Homogenization agents are used to distribute the fat molecules evenly throughout the milk, but they do not provide significant health benefits or harm in moderate amounts."
+    }
+  ]
+}
+
+
+        displayProductDetails(data)
+    </script>
+</body>
+</html>
