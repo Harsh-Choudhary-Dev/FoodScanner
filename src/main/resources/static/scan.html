@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Product - Food Scanner</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="scan-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-leaf"></i>
+                <span>Food Scanner</span>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="index.html" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Camera Section -->
+    <div class="camera-container">
+        <video id="camera" class="camera-feed" autoplay playsinline></video>
+        <canvas id="canvas" class="camera-canvas" style="display: none;"></canvas>
+        
+        <!-- Scan Overlay -->
+        <div class="scan-overlay">
+            <div class="scan-frame">
+                <div class="scan-corners">
+                    <div class="corner top-left"></div>
+                    <div class="corner top-right"></div>
+                    <div class="corner bottom-left"></div>
+                    <div class="corner bottom-right"></div>
+                </div>
+                <div class="scan-line"></div>
+            </div>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="camera-controls">
+            <button class="btn-camera-control" id="toggleCamera">
+                <i class="fas fa-camera"></i>
+            </button>
+            <button class="btn-camera-control" id="toggleFlash">
+                <i class="fas fa-bolt"></i>
+            </button>
+        </div>
+
+        <!-- Scan Status -->
+        <div class="scan-status">
+            <div class="status-indicator" id="statusIndicator">
+                <i class="fas fa-circle"></i>
+                <span id="statusText">Ready to scan</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Input Section -->
+    <!-- <div class="manual-section">
+        <h3>Can't scan? Enter manually</h3>
+        
+        <div class="input-tabs">
+            <button class="input-tab active" data-tab="barcode">Barcode</button>
+            <button class="input-tab" data-tab="product">Product Name</button>
+        </div> -->
+
+        <!-- Barcode Input -->
+        <!-- <div class="tab-content active" id="barcode">
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <i class="fas fa-barcode"></i>
+                    <input type="text" id="barcodeInput" placeholder="Enter barcode number">
+                </div>
+                <button class="btn-search" id="searchBarcode">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div> -->
+
+        <!-- Product Name Input -->
+        <!-- <div class="tab-content" id="product">
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <i class="fas fa-utensils"></i>
+                    <input type="text" id="productInput" placeholder="Enter product name">
+                </div>
+                <button class="btn-search" id="searchProduct">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div> -->
+
+    <!-- Result Modal -->
+    <div class="modal" id="resultModal" style="display: none;">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-header">
+                <h2 id="modalTitle">Scan Complete!</h2>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Basic Summary View -->
+            <div class="modal-body" id="basicResultView">
+                <div class="result-product">
+                    <div class="result-image">
+                        <img src="" alt="Product">
+                    </div>
+                    <div class="result-info">
+                        <h3>Product Name</h3>
+                        <div class="result-score">
+                            <span class="score-label">Ingredient Score</span>
+                            <span class="score-value">--/100</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="viewDetails()">
+                        <i class="fas fa-chart-pie"></i>
+                        View Analysis
+                    </button>
+                    <button class="btn btn-secondary" onclick="scanAgain()">
+                        <i class="fas fa-camera"></i>
+                        Scan Again
+                    </button>
+                </div>
+            </div>
+
+            <!-- Detailed Analysis View (Hidden by Default) -->
+            <div class="modal-body" id="detailedAnalysisView" style="display: none;">
+                <div class="analysis-dashboard" id="analysisDashboardContent">
+                    <!-- Cards injected via JS -->
+                </div>
+                <div class="result-actions" style="margin-top: 24px;">
+                    <button class="btn btn-secondary" onclick="showBasicResult()">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Summary
+                    </button>
+                    <button class="btn btn-primary" onclick="scanAgain()">
+                        <i class="fas fa-camera"></i>
+                        New Scan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/scan.js"></script>
+</body>
+</html>
