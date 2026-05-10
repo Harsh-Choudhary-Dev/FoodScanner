@@ -173,10 +173,12 @@ Access the app at `http://localhost:8080`.
 
 ## 📸 Screenshots
 
-![Landing Page](1.jpg)
-![Feature Section](2.jpg)
-![Product View](3.jpg)
-![Analysis Detail](4.jpg)
+<div align="center">
+  <img src="1.jpg" alt="Landing Page" width="250" />
+  <img src="2.jpg" alt="Feature Section" width="250" />
+  <img src="3.jpg" alt="Product View" width="250" />
+  <img src="4.jpg" alt="Analysis Detail" width="250" />
+</div>
 
 ---
 
