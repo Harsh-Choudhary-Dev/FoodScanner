@@ -191,12 +191,6 @@ We welcome contributions from the community!
 
 ---
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
 ## 👤 Author
 
 **Harsh Choudhary**
